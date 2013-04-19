@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>WebGL</title>
+		<link rel="stylesheet" type="text/css" href="webgl.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="webgl.js"></script>
+		<script id="riftFS" type="x-shader/x-fragment">
+			precision highp float;
+			
+			uniform sampler2D texture;
+			uniform vec2 LensCenter;
+			uniform vec2 ScreenCenter;
+			uniform vec2 Scale;
+			uniform vec2 ScaleIn;
+			uniform vec4 HmdWarpParam;
+
+			varying vec2 oTexCoord;
+
+			// Scales input texture coordinates for distortion.
+			vec2 HmdWarp(vec2 in01)
+			{
+			   vec2 theta = (in01 - LensCenter) * ScaleIn; // Scales to [-1, 1]
+			   float rSq = theta.x * theta.x + theta.y * theta.y;
+			   vec2 rvector = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq +
+				  HmdWarpParam.z * rSq * rSq +
+				  HmdWarpParam.w * rSq * rSq * rSq);
+			   return LensCenter + Scale * rvector;
+			}
+
+			void main()
+			{
+			   vec2 tc = HmdWarp(oTexCoord);
+			   if (any(bvec2(clamp(tc,ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tc)))
+			   {
+				  gl_FragColor = vec4(vec3(0.0), 1.0);
+				  return;
+			   }
+
+			   gl_FragColor = texture2D(texture, tc);
+			}
+		</script>
+		<script id="riftVS" type="x-shader/x-vertex">
+			attribute vec2 coord;
+			
+			varying vec2 oTexCoord;
+			
+			void main()
+			{
+				oTexCoord = coord;
+				gl_Position = vec4((coord-vec2(0.5))*2.0, 0.0, 1.0);
+			}
+		</script>
+	</head>
+	<body>
+		<canvas id="rift" width="1280" height="800"></canvas>
+		<video id="left" width="0" height="0"></video>
+		<video id="right" width="0" height="0"></video>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+body {
+	margin: 0 auto;
+	padding: 0;
+	overflow: none;
+	width: 1280px;
+	height: 800px;
+}
+
+#rift {
+	background: #666;
+}
+
+video {
+	display: none;
+}
