@@ -1,7 +1,7 @@
 body {
 	margin: 0 auto;
 	padding: 0;
-	overflow: none;
+	overflow: hidden;
 	width: 1280px;
 	height: 800px;
 }
